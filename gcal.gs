@@ -2,8 +2,8 @@
 
 function setTrigger() {
   var triggerDay = new Date();
-  const triggerHours = PropertiesService.getScriptProperties().getProperty("CALENDAR_TRIGGER_HOURS") || 8;
-  const triggerMins = PropertiesService.getScriptProperties().getProperty("CALENDAR_TRIGGER_MINS") || 0;
+  const triggerHours = PropertiesService.getScriptProperties().getProperty("CALENDAR_TRIGGER_HOURS");
+  const triggerMins = PropertiesService.getScriptProperties().getProperty("CALENDAR_TRIGGER_MINS");
   triggerDay.setHours(triggerHours);
   triggerDay.setMinutes(triggerMins);
   ScriptApp.newTrigger("main").timeBased().at(triggerDay).create();
@@ -77,5 +77,6 @@ function main() {
   const strEvent = "今日の予定は、" + ev.join("、") + "です。";
   const firestore = FirestoreApp.getFirestore(iam_email, iam_key, iam_projectid);
   const docpath = PropertiesService.getScriptProperties().getProperty("FIREBASE_DOCPATH") || 'googlehome/chant';
+  console.log(strDate + strEvent);
   firestore.updateDocument(docpath, { 'message': strDate + strEvent });
 }
