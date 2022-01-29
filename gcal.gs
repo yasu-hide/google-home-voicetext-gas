@@ -1,3 +1,5 @@
+/** @OnlyCurrentDoc */
+
 function setTrigger() {
   var triggerDay = new Date();
   const triggerHours = PropertiesService.getScriptProperties().getProperty("CALENDAR_TRIGGER_HOURS") || 8;
