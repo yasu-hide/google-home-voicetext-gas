@@ -1,9 +1,19 @@
 /** @OnlyCurrentDoc */
 
+function isWeekday(targetDate) {
+  const day = targetDate.getDay();
+  const holidayCalendarId = 'ja.japanese#holiday@group.v.calendar.google.com';
+  const holidayCal = CalendarApp.getCalendarById(holidayCalendarId);
+  const holidayEvents = holidayCal.getEventsForDay(targetDate);
+  return ! (day === 0 || day === 6 || holidayEvents.length > 0);
+}
+
 function setTrigger() {
-  var triggerDay = new Date();
-  const triggerHours = PropertiesService.getScriptProperties().getProperty("CALENDAR_TRIGGER_HOURS");
-  const triggerMins = PropertiesService.getScriptProperties().getProperty("CALENDAR_TRIGGER_MINS");
+  const triggerDay = new Date();
+  const triggerHoursProperty = isWeekday(triggerDay) ? "CALENDAR_TRIGGER_HOURS_WEEKDAY" : "CALENDAR_TRIGGER_HOURS_DAYOFF";
+  const triggerMinsProperty = isWeekday(triggerDay) ? "CALENDAR_TRIGGER_MINS_WEEKDAY" : "CALENDAR_TRIGGER_MINS_DAYOFF";
+  const triggerHours = PropertiesService.getScriptProperties().getProperty(triggerHoursProperty);
+  const triggerMins = PropertiesService.getScriptProperties().getProperty(triggerMinsProperty);
   triggerDay.setHours(triggerHours);
   triggerDay.setMinutes(triggerMins);
   ScriptApp.newTrigger("main").timeBased().at(triggerDay).create();
