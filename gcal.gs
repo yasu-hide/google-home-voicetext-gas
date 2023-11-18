@@ -84,9 +84,10 @@ function main() {
   const d = new Date();
   const strDate = "　" + greeting(d.getHours()) + _HHmm(d) + "になりました。";
   const ev = getEventsForDay(JSON.parse(acc));
-  const strEvent = "今日の予定は、" + ev.join("、") + "です。";
+  const strEvent = (ev.length > 0) ? ev.join("、") + "です。" : "ありません。";
+  const strSpeak = strDate + "今日の予定は、" + strEvent;
   const firestore = FirestoreApp.getFirestore(iam_email, iam_key, iam_projectid);
   const docpath = PropertiesService.getScriptProperties().getProperty("FIREBASE_DOCPATH") || 'googlehome/chant';
-  console.log(strDate + strEvent);
-  firestore.updateDocument(docpath, { 'message': strDate + strEvent });
+  console.log(strSpeak);
+  firestore.updateDocument(docpath, { 'message': strSpeak });
 }
