@@ -4,6 +4,15 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: true
+        default: 'deploy_and_sync'
+        type: choice
+        options:
+          - deploy_and_sync
+          - sync_properties_only
 
 jobs:
   deploy:
@@ -34,6 +43,7 @@ jobs:
             '{scriptId: $scriptId, rootDir: $rootDir}' > .clasp.json
 
       - name: Push code to GAS
+        if: ${{ github.event.inputs.mode != 'sync_properties_only' }}
         run: pnpm dlx --package @google/clasp clasp push --force
 
       - name: Sync non-secret properties to GAS
