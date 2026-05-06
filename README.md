@@ -180,4 +180,13 @@ pnpm dlx --package @google/clasp clasp push --force
 - `pnpm dlx --package @google/clasp clasp push --force`: コードの更新
 - `pnpm dlx --package @google/clasp clasp run syncPropertiesFromGithub`: Script Properties の同期
 
+手動実行（`workflow_dispatch`）では `mode` を選択できます。
+
+| mode | 動作 |
+|------|------|
+| `deploy_and_sync` | GASへコードをpushし、その後Script Propertiesを同期します。 |
+| `sync_properties_only` | GASへのコードpushをスキップし、Script Propertiesだけを同期します。 |
+
+`sync_properties_only` は、GAS側に `syncPropertiesFromGithub` が既にデプロイされている場合に使用します。GitHub Variablesだけを変更してGASへ反映したいときに便利です。
+
 CLASP の refresh token が失効した場合は、ローカルで `pnpm dlx --package @google/clasp clasp login` を再実行して `CLASPRC_JSON` を更新します。
