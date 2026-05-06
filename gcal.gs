@@ -91,3 +91,7 @@ function main() {
   console.log(strSpeak);
   firestore.updateDocument(docpath, { 'message': strSpeak });
 }
+
+function syncPropertiesFromGithub(props) {
+  PropertiesService.getScriptProperties().setProperties(props);
+}
