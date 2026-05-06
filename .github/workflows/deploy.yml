@@ -1,0 +1,63 @@
+name: Deploy to GAS
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable pnpm
+        run: corepack enable pnpm
+
+      - name: Restore CLASP credentials
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
+
+      - name: Write .clasp.json
+        env:
+          CLASP_SCRIPT_ID: ${{ vars.CLASP_SCRIPT_ID }}
+        run: |
+          jq -n \
+            --arg scriptId "$CLASP_SCRIPT_ID" \
+            --arg rootDir "." \
+            '{scriptId: $scriptId, rootDir: $rootDir}' > .clasp.json
+
+      - name: Push code to GAS
+        run: pnpm dlx --package @google/clasp clasp push --force
+
+      - name: Sync non-secret properties to GAS
+        env:
+          CALENDAR_ACCOUNTS: ${{ vars.CALENDAR_ACCOUNTS }}
+          FIREBASE_DOCPATH: ${{ vars.FIREBASE_DOCPATH }}
+          CALENDAR_TRIGGER_HOURS_WEEKDAY: ${{ vars.CALENDAR_TRIGGER_HOURS_WEEKDAY }}
+          CALENDAR_TRIGGER_MINS_WEEKDAY: ${{ vars.CALENDAR_TRIGGER_MINS_WEEKDAY }}
+          CALENDAR_TRIGGER_HOURS_DAYOFF: ${{ vars.CALENDAR_TRIGGER_HOURS_DAYOFF }}
+          CALENDAR_TRIGGER_MINS_DAYOFF: ${{ vars.CALENDAR_TRIGGER_MINS_DAYOFF }}
+        run: |
+          params="$(jq -c -n \
+            --arg calendarAccounts "$CALENDAR_ACCOUNTS" \
+            --arg firebaseDocpath "$FIREBASE_DOCPATH" \
+            --arg triggerHoursWeekday "$CALENDAR_TRIGGER_HOURS_WEEKDAY" \
+            --arg triggerMinsWeekday "$CALENDAR_TRIGGER_MINS_WEEKDAY" \
+            --arg triggerHoursDayoff "$CALENDAR_TRIGGER_HOURS_DAYOFF" \
+            --arg triggerMinsDayoff "$CALENDAR_TRIGGER_MINS_DAYOFF" \
+            '[{
+              CALENDAR_ACCOUNTS: $calendarAccounts,
+              FIREBASE_DOCPATH: $firebaseDocpath,
+              CALENDAR_TRIGGER_HOURS_WEEKDAY: $triggerHoursWeekday,
+              CALENDAR_TRIGGER_MINS_WEEKDAY: $triggerMinsWeekday,
+              CALENDAR_TRIGGER_HOURS_DAYOFF: $triggerHoursDayoff,
+              CALENDAR_TRIGGER_MINS_DAYOFF: $triggerMinsDayoff
+            }]')"
+          pnpm dlx --package @google/clasp clasp run syncPropertiesFromGithub --params "$params"
