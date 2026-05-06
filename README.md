@@ -1,5 +1,5 @@
 # google-home-voicetext-gas
-Google Homeをがなり立てる、Google Apps Engine用スクリプトたち
+Google Homeをがなり立てる、Google Apps Script用スクリプトたち
 
 ## gcal.gs
 Googleカレンダーの内容をお喋り
