@@ -14,6 +14,9 @@ on:
           - deploy_and_sync
           - sync_properties_only
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
